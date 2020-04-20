@@ -135,8 +135,6 @@ class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final audioPlayerModel = Provider.of<AudioPlayerModel>(context);
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       margin: EdgeInsets.only(top: 25),
@@ -160,13 +158,15 @@ class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateM
           //Play button
           FloatingActionButton(
             onPressed: (){
+              final audioPlayerModel = Provider.of<AudioPlayerModel>(context, listen: false);
+
               if (this.isPlaying) {
                 controller.reverse();
                 this.isPlaying = false;
 
-                //Timer(Duration(milliseconds: 300), () {
+                Timer(Duration(milliseconds: 300), () {
                   audioPlayerModel.controller.stop();
-                //});
+                });
               } else {
                 controller.forward();
                 audioPlayerModel.controller.repeat();
@@ -278,6 +278,7 @@ class _ImageDisc extends StatelessWidget {
             SpinPerfect(
               duration: Duration(seconds: 10),
               infinite: true,
+              animate: false,
               manualTrigger: true,
               controller: (animationController) => audioPlayerModel.controller = animationController,
               child: Image(image: AssetImage('assets/aurora.jpg'))
