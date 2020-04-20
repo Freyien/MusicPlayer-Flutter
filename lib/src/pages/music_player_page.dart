@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/src/helpers/helpers.dart';
 import 'package:music_player/src/widgets/custom_appbar.dart';
 
 class MusicPlayerPage extends StatelessWidget {
@@ -15,11 +16,39 @@ class MusicPlayerPage extends StatelessWidget {
 
           _ImageDiscDuration(),
 
-          _PlayTitle()
+          _PlayTitle(),
+
+          Expanded(
+            child: _Lyrics()
+          )
 
 
         ],
       )
+    );
+  }
+}
+
+class _Lyrics extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final lyrics = getLyrics();
+
+    return Container(
+      margin: EdgeInsets.only(top: 15),
+      child: ListWheelScrollView(
+        itemExtent: 42, 
+        diameterRatio: 1.5,
+        physics: BouncingScrollPhysics(),
+        children: lyrics.map((line) {
+          return Text(line, 
+            style: TextStyle(
+              fontSize: 18, 
+              color: Colors.white.withOpacity(0.6)
+            )
+          );
+        }).toList()
+      ),
     );
   }
 }
@@ -29,15 +58,17 @@ class _PlayTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      margin: EdgeInsets.only(top: 35),
+      margin: EdgeInsets.only(top: 25),
       child: Row(
         children: <Widget>[
 
           Column(
             children: <Widget>[
 
+              //Song title
               Text('Far Away', style: TextStyle(fontSize: 30, color: Colors.white.withOpacity(0.8))),
 
+              //Artist
               Text('-Breaking Benjamin-', style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.8)))
 
             ],
@@ -45,6 +76,7 @@ class _PlayTitle extends StatelessWidget {
 
           Spacer(),
 
+          //Play button
           FloatingActionButton(
             onPressed: (){
               //TODO Action button
@@ -65,7 +97,7 @@ class _ImageDiscDuration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 70),
+      margin: EdgeInsets.only(top: 50),
       padding: EdgeInsets.symmetric(horizontal: 30),
       child: Row(
         children: <Widget>[
