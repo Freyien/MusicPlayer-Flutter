@@ -1,5 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:animate_do/animate_do.dart';
+
+import 'package:provider/provider.dart';
+
 import 'package:music_player/src/helpers/helpers.dart';
+import 'package:music_player/src/models/audio_player_model.dart';
 import 'package:music_player/src/widgets/custom_appbar.dart';
 
 class MusicPlayerPage extends StatelessWidget {
@@ -8,10 +17,13 @@ class MusicPlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        //Gradient Background
-        child: _Background(
-          child: Column(
+      body: Stack(
+        children: <Widget>[
+
+          //Gradient Background
+          _Background(),
+
+          Column(
             children: <Widget>[
 
               CustomAppBar(),
@@ -28,25 +40,19 @@ class MusicPlayerPage extends StatelessWidget {
             ],
           ),
 
-        ),
+
+        ]
       )
     );
   }
 }
 
 class _Background extends StatelessWidget {
-  final Widget child;
-
-  const _Background({
-    @required this.child
-  });
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return Container(
-      child: this.child,
       width: double.infinity,
       height: screenSize.height * 0.8,
       decoration: BoxDecoration(
@@ -96,6 +102,9 @@ class _PlayTitle extends StatefulWidget {
 class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateMixin{
   AnimationController controller;
   bool isPlaying = false;
+  bool firstTime = true;
+
+  final assetsAudioPlayer = new AssetsAudioPlayer();
 
   @override
   void initState() {
@@ -110,8 +119,24 @@ class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateM
     super.dispose();
   }
 
+  void open() {
+    final audioPlayerModel = Provider.of<AudioPlayerModel>(context, listen: false);
+
+    assetsAudioPlayer.open(Audio("assets/Breaking-Benjamin-Far-Away.mp3"));
+
+    assetsAudioPlayer.currentPosition.listen((Duration duration) {
+      audioPlayerModel.current = duration;
+    });
+
+    assetsAudioPlayer.current.listen( (Playing playingAudio) {
+      audioPlayerModel.songDuration = playingAudio.audio.duration;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final audioPlayerModel = Provider.of<AudioPlayerModel>(context);
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       margin: EdgeInsets.only(top: 25),
@@ -138,10 +163,23 @@ class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateM
               if (this.isPlaying) {
                 controller.reverse();
                 this.isPlaying = false;
+
+                //Timer(Duration(milliseconds: 300), () {
+                  audioPlayerModel.controller.stop();
+                //});
               } else {
                 controller.forward();
+                audioPlayerModel.controller.repeat();
                 this.isPlaying = true;
               }
+
+              if (this.firstTime) {
+                this.firstTime = false;
+                this.open();
+              } else {
+                assetsAudioPlayer.playOrPause();
+              }
+
             },
             backgroundColor: Color(0xffF8CB51),
             child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: controller),
@@ -159,7 +197,7 @@ class _ImageDiscDuration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 50),
+      margin: EdgeInsets.only(top: 30),
       padding: EdgeInsets.symmetric(horizontal: 30),
       child: Row(
         children: <Widget>[
@@ -181,11 +219,14 @@ class _DurationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = TextStyle( color: Colors.white.withOpacity(0.4) );
+    final audioPlayerModel = Provider.of<AudioPlayerModel>(context);
+    final percentage = audioPlayerModel.percentage;
+
     return Container(
       child: Column(
         children: <Widget>[
 
-          Text('00:00', style: textStyle),
+          Text('${audioPlayerModel.songTotalDuration}', style: textStyle),
           SizedBox(height: 10),
 
           Stack(
@@ -193,7 +234,7 @@ class _DurationBar extends StatelessWidget {
 
               Container(
                 width: 3,
-                height: 230,
+                height: 200,
                 color: Colors.white.withOpacity(0.1),
               ),
 
@@ -201,7 +242,7 @@ class _DurationBar extends StatelessWidget {
                 bottom: 0,
                 child: Container(
                   width: 3,
-                  height: 150,
+                  height: 200 * percentage,
                   color: Colors.white.withOpacity(0.8),
                 ),
               )
@@ -210,7 +251,7 @@ class _DurationBar extends StatelessWidget {
           ),
 
           SizedBox(height: 10),
-          Text('00:00', style: textStyle),
+          Text('${audioPlayerModel.currentSecond}', style: textStyle),
 
         ],
       ),
@@ -221,19 +262,28 @@ class _DurationBar extends StatelessWidget {
 class _ImageDisc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final audioPlayerModel = Provider.of<AudioPlayerModel>(context);
+
     return Container(
       padding: EdgeInsets.all(20),
-      width: 250,
-      height: 250,
+      width: 220,
+      height: 220,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(250),
+        borderRadius: BorderRadius.circular(220),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
 
             //Image disc
-            Image(image: AssetImage('assets/aurora.jpg')),
+            SpinPerfect(
+              duration: Duration(seconds: 10),
+              infinite: true,
+              manualTrigger: true,
+              controller: (animationController) => audioPlayerModel.controller = animationController,
+              child: Image(image: AssetImage('assets/aurora.jpg'))
+            ),
 
+            //center circles
             Container(
               width: 25,
               height: 25,
@@ -256,7 +306,7 @@ class _ImageDisc extends StatelessWidget {
       ),
       //Border
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(250),
+        borderRadius: BorderRadius.circular(220),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           colors: [
