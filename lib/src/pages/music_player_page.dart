@@ -8,12 +8,10 @@ class MusicPlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-
-          _Background(),
-
-          Column(
+      body: Container(
+        //Gradient Background
+        child: _Background(
+          child: Column(
             children: <Widget>[
 
               CustomAppBar(),
@@ -29,18 +27,26 @@ class MusicPlayerPage extends StatelessWidget {
 
             ],
           ),
-        ],
+
+        ),
       )
     );
   }
 }
 
 class _Background extends StatelessWidget {
+  final Widget child;
+
+  const _Background({
+    @required this.child
+  });
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return Container(
+      child: this.child,
       width: double.infinity,
       height: screenSize.height * 0.8,
       decoration: BoxDecoration(
@@ -82,7 +88,28 @@ class _Lyrics extends StatelessWidget {
   }
 }
 
-class _PlayTitle extends StatelessWidget {
+class _PlayTitle extends StatefulWidget {
+  @override
+  __PlayTitleState createState() => __PlayTitleState();
+}
+
+class __PlayTitleState extends State<_PlayTitle> with SingleTickerProviderStateMixin{
+  AnimationController controller;
+  bool isPlaying = false;
+
+  @override
+  void initState() {
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500) );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -108,10 +135,16 @@ class _PlayTitle extends StatelessWidget {
           //Play button
           FloatingActionButton(
             onPressed: (){
-              //TODO Action button
+              if (this.isPlaying) {
+                controller.reverse();
+                this.isPlaying = false;
+              } else {
+                controller.forward();
+                this.isPlaying = true;
+              }
             },
             backgroundColor: Color(0xffF8CB51),
-            child: Icon(Icons.play_arrow),
+            child: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: controller),
             elevation: 0,
             highlightElevation: 0,
           )
