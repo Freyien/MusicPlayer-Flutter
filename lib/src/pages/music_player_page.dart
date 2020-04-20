@@ -13,11 +13,50 @@ class MusicPlayerPage extends StatelessWidget {
 
           CustomAppBar(),
 
-          _ImageDiscDuration()
+          _ImageDiscDuration(),
+
+          _PlayTitle()
 
 
         ],
       )
+    );
+  }
+}
+
+class _PlayTitle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      margin: EdgeInsets.only(top: 35),
+      child: Row(
+        children: <Widget>[
+
+          Column(
+            children: <Widget>[
+
+              Text('Far Away', style: TextStyle(fontSize: 30, color: Colors.white.withOpacity(0.8))),
+
+              Text('-Breaking Benjamin-', style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.8)))
+
+            ],
+          ),
+
+          Spacer(),
+
+          FloatingActionButton(
+            onPressed: (){
+              //TODO Action button
+            },
+            backgroundColor: Color(0xffF8CB51),
+            child: Icon(Icons.play_arrow),
+            elevation: 0,
+            highlightElevation: 0,
+          )
+
+        ],
+      ),
     );
   }
 }
