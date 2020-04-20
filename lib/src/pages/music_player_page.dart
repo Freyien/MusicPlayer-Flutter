@@ -8,23 +8,52 @@ class MusicPlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: <Widget>[
 
+          _Background(),
 
-          CustomAppBar(),
+          Column(
+            children: <Widget>[
 
-          _ImageDiscDuration(),
+              CustomAppBar(),
 
-          _PlayTitle(),
+              _ImageDiscDuration(),
 
-          Expanded(
-            child: _Lyrics()
-          )
+              _PlayTitle(),
+
+              Expanded(
+                child: _Lyrics()
+              )
 
 
+            ],
+          ),
         ],
       )
+    );
+  }
+}
+
+class _Background extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
+    return Container(
+      width: double.infinity,
+      height: screenSize.height * 0.8,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60)),
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.center,
+          colors: [
+            Color(0xff33333E),
+            Color(0xff201E28)
+          ]
+        )
+      ),
     );
   }
 }
@@ -69,7 +98,7 @@ class _PlayTitle extends StatelessWidget {
               Text('Far Away', style: TextStyle(fontSize: 30, color: Colors.white.withOpacity(0.8))),
 
               //Artist
-              Text('-Breaking Benjamin-', style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.8)))
+              Text('-Breaking Benjamin-', style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.4)))
 
             ],
           ),
